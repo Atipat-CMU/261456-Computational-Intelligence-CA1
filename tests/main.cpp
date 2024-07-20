@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../include/dotlis.h"
+#include "../include/mlp.h"
 
 using namespace dotlis;
 
