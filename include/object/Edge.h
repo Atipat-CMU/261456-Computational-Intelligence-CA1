@@ -3,26 +3,31 @@
 
 #include "Neural.h"
 
-typedef long long ll;
-
 namespace mlp {
     class Edge
     {
         private:
             Neural *head, *tail;
-            ll weight;
+            double weight;
 
         public:
             Edge();
+            Edge(Neural *head, Neural *tail, double weight);
             ~Edge();
 
             Neural* getHead();
             Neural* getTail();
-            ll getW();
+            double getW();
     };
 
     Edge::Edge()
     {
+    }
+
+    Edge::Edge(Neural *head, Neural *tail, double weight){
+        this->head = head;
+        this->tail = tail;
+        this->weight = weight;
     }
 
     Edge::~Edge()
@@ -37,7 +42,7 @@ namespace mlp {
         return tail;
     }
 
-    ll Edge::getW(){
+    double Edge::getW(){
         return weight;
     }
 }

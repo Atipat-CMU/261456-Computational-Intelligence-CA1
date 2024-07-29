@@ -1,13 +1,24 @@
 #include <math.h>
 
-typedef long long ll;
-
 namespace mlp {
-    int sigmoid(ll x, bool isForward){
+    double sigmoid(double x, bool isForward){
         if(isForward){
             return 1/(1+exp(-x));
         }else{
-            ll f = sigmoid(x, true);
+            double f = sigmoid(x, true);
+            return f*(1-f);
+        }
+    }
+
+    double linear(double x, bool isForward){
+        if(isForward){
+            if(x >= 0){
+                return x;
+            }else{
+                return 0;
+            }
+        }else{
+            double f = sigmoid(x, true);
             return f*(1-f);
         }
     }
