@@ -18,6 +18,7 @@ namespace mlp {
             Neural* getHead();
             Neural* getTail();
             double getW();
+            void setW(double deltaW);
     };
 
     Edge::Edge()
@@ -44,6 +45,10 @@ namespace mlp {
 
     double Edge::getW(){
         return weight;
+    }
+
+    void Edge::setW(double deltaW){
+        this->weight += deltaW;
     }
 }
 

@@ -7,18 +7,24 @@ namespace mlp {
     class Neural
     {
         private:
+            bool is_hidden;
             double (*activation)(double, bool);
             double v, y = 0;
+            double localGrad = 0;
 
         public:
             Neural();
             Neural(double y);
-            Neural(double (*fun)(double, bool));
+            Neural(bool is_hidden, double (*fun)(double, bool));
             ~Neural();
 
             void update(double v);
             void setY(double y);
             double getY();
+
+            void updateGradOutput(double d);
+            void updateGradHidden(double sum);
+            double getG();
     };
 
     Neural::Neural()
@@ -29,7 +35,8 @@ namespace mlp {
         this->y = y;
     }
 
-    Neural::Neural(double (*fun)(double, bool)){
+    Neural::Neural(bool is_hidden, double (*fun)(double, bool)){
+        this->is_hidden = is_hidden;
         this->activation = fun;
         this->y = 0;
         this->v = 0;
@@ -50,6 +57,19 @@ namespace mlp {
 
     double Neural::getY(){
         return y;
+    }
+
+    void Neural::updateGradOutput(double d){
+        double error = d - y;
+        this->localGrad = error*activation(v, false);
+    }
+
+    void Neural::updateGradHidden(double sum){
+        this->localGrad = sum*activation(v, false);
+    }
+
+    double Neural::getG(){
+        return localGrad;
     }
 }
 

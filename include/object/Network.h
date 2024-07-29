@@ -18,7 +18,8 @@ namespace mlp {
         private:
             Layer *input_ly, *output_ly;
             vector<Layer*> hidden_lys;
-            void forward(vector<double> inputs);
+            void forward(vector<double>& inputs);
+            void backward(vector<double>& outputs);
 
         public:
             Network();
@@ -35,7 +36,7 @@ namespace mlp {
 
     Network::Network(vector<layer_info> layers){
         for(layer_info l_info : layers){
-            Layer* layer = new Layer(l_info.N_node, l_info.activation);
+            Layer* layer = new Layer(l_info.type == HIDDEN, l_info.N_node, l_info.activation);
             if(l_info.type == INPUT){
                 input_ly = layer;
             }else if(l_info.type == OUTPUT){
@@ -44,7 +45,7 @@ namespace mlp {
                 hidden_lys.push_back(layer);
             }
         }
-        
+
         if(!hidden_lys.empty()){
             hidden_lys[0]->connect(input_ly);
             for(int i = 1; i < hidden_lys.size(); i++){
@@ -71,13 +72,22 @@ namespace mlp {
         }
     }
 
-    void Network::forward(vector<double> inputs){
+    void Network::forward(vector<double>& inputs){
         input_ly->set_input(inputs);
         for(Layer* ly : hidden_lys){
             ly->forward();
         }
-        for(double output : output_ly->get_output()){
-            cout << output << endl;
+        output_ly->forward();
+    }
+
+    void Network::backward(vector<double>& outputs){
+        for(Layer* ly : hidden_lys){
+            ly->updateGrad(outputs);
+        }
+        output_ly->updateGrad(outputs);
+        output_ly->backprop();
+        for(auto it = hidden_lys.rbegin(); it != hidden_lys.rend(); ++it){
+            (*it)->backprop();
         }
     }
 
@@ -88,7 +98,14 @@ namespace mlp {
         if(y.get_width() != output_ly->size()){
             throw runtime_error("Output size not match");
         }
-        this->forward(X.getRow(0));
+        while(epoch--){
+            vector<double> inputs = X.getRow(0);
+            vector<double> outputs = y.getRow(0);
+
+            this->forward(inputs);
+            cout << output_ly->get_output()[0] << endl;
+            this->backward(outputs);
+        }
     }
 }
 

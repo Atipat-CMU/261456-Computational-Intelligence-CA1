@@ -22,13 +22,15 @@ namespace mlp {
             vector<Neural*> neurals;
             vector<Neural*> bias_ls;
             edge_set in_edges;
+            edge_set out_edges;
+            bool is_hidden;
             
             void clear();
             void copyFrom(const Layer& other);
 
         public:
             Layer();
-            Layer(int N_node, double (*activation)(double, bool));
+            Layer(bool is_hidden, int N_node, double (*activation)(double, bool));
             ~Layer();
 
             Layer(const Layer& other);
@@ -38,8 +40,11 @@ namespace mlp {
 
             vector<Neural*> get_neurals() const;
             void connect(Layer* prev_ly);
+            void set_out_edges(edge_set out_edges);
             void set_input(vector<double>& inputs);
             void forward();
+            void updateGrad(vector<double>& outputs);
+            void backprop();
             vector<double> get_output();
     };
 
@@ -47,9 +52,10 @@ namespace mlp {
     {
     }
 
-    Layer::Layer(int N_node, double (*activation)(double, bool)){
+    Layer::Layer(bool is_hidden, int N_node, double (*activation)(double, bool)){
+        this->is_hidden = is_hidden;
         for(int i = 0; i < N_node; i++){
-            Neural* neural = new Neural(activation);
+            Neural* neural = new Neural(is_hidden, activation);
             neurals.push_back(neural);
         }
     }
@@ -118,19 +124,29 @@ namespace mlp {
     }
 
     void Layer::connect(Layer* prev_ly){
+        int min = -1;
+        int max = 1;
+        float r = (float)rand() / (float)RAND_MAX;
         for (Neural* nl : neurals) {
-            vector<Edge*> edges;
+            vector<Edge*> edges_in;
+            edge_set edges_out;
             for(Neural* prev_nl : prev_ly->get_neurals()){
-                Edge* edge = new Edge(nl, prev_nl, 1);
-                edges.push_back(edge);
+                Edge* edge = new Edge(nl, prev_nl, min + r * (max - min));
+                edges_in.push_back(edge);
+                edges_out[prev_nl].push_back(edge);
             }
             Neural* bias = new Neural(1);
             bias_ls.push_back(bias);
-            Edge* edge = new Edge(nl, bias, 1);
-            edges.push_back(edge);
+            Edge* edge = new Edge(nl, bias, min + r * (max - min));
+            edges_in.push_back(edge);
 
-            in_edges[nl] = edges;
+            in_edges[nl] = edges_in;
+            prev_ly->set_out_edges(edges_out);
         }
+    }
+
+    void Layer::set_out_edges(edge_set out_edges){
+        this->out_edges = out_edges;
     }
 
     void Layer::set_input(vector<double>& inputs){
@@ -157,6 +173,33 @@ namespace mlp {
             }
             n->update(v);
         }
+    }
+
+    void Layer::updateGrad(vector<double>& outputs){
+        if(is_hidden){
+            for(int i = 0; i < neurals.size(); i++){
+                double sum = 0;
+                for(Edge* e : out_edges[neurals[i]]){
+                    sum += e->getHead()->getG() * e->getW();
+                }
+                neurals[i]->updateGradHidden(sum);
+            }
+        }else{
+            for(int i = 0; i < neurals.size(); i++){
+                neurals[i]->updateGradOutput(outputs[i]);
+            }
+        }
+    }
+
+    void Layer::backprop(){
+        for(int i = 0; i < neurals.size(); i++){
+            for(Edge* e : in_edges[neurals[i]]){
+                double deltaW = 0.5 * neurals[i]->getG() * e->getTail()->getY();
+                // cout << deltaW << endl;
+                e->setW(deltaW);
+            }
+        }
+        
     }
 }
 

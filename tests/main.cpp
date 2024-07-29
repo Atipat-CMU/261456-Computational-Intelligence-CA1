@@ -13,12 +13,13 @@ int main(){
     Dataframe y_train = df.get_column({8});
 
     vector<layer_info> layers = {
-        {INPUT, linear, 8},
+        {INPUT, nullptr, 8},
+        {HIDDEN, linear, 10},
         {OUTPUT, linear, 1},
     };
 
     Network network(layers);
-    network.fit(X_train, y_train, 200, 0.1);
+    network.fit(X_train, y_train, 100, 0.1);
 
     return 0;
 }

@@ -18,8 +18,11 @@ namespace mlp {
                 return 0;
             }
         }else{
-            double f = sigmoid(x, true);
-            return f*(1-f);
+            if(x >= 0){
+                return 1;
+            }else{
+                return 0;
+            }
         }
     }
 }
