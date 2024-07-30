@@ -9,6 +9,7 @@ using namespace std;
 #include "Layer.h"
 #include "Dataframe.h"
 #include "LayerInfo.h"
+#include "Parameter.h"
 
 using namespace dotlis;
 
@@ -19,7 +20,8 @@ namespace mlp {
             Layer *input_ly, *output_ly;
             vector<Layer*> hidden_lys;
             void forward(vector<double>& inputs);
-            void backward(vector<double>& outputs);
+            void backward(vector<double>& outputs, double lr);
+            Parameter parameter;
 
         public:
             Network();
@@ -35,6 +37,7 @@ namespace mlp {
     }
 
     Network::Network(vector<layer_info> layers){
+        this->parameter = Parameter(layers);
         for(layer_info l_info : layers){
             Layer* layer = new Layer(l_info.type == HIDDEN, l_info.N_node, l_info.activation);
             if(l_info.type == INPUT){
@@ -47,13 +50,13 @@ namespace mlp {
         }
 
         if(!hidden_lys.empty()){
-            hidden_lys[0]->connect(input_ly);
+            hidden_lys[0]->connect(input_ly, parameter, 1);
             for(int i = 1; i < hidden_lys.size(); i++){
-                hidden_lys[i]->connect(hidden_lys[i-1]);
+                hidden_lys[i]->connect(hidden_lys[i-1], parameter, i+1);
             }
-            output_ly->connect(hidden_lys[hidden_lys.size()-1]);
+            output_ly->connect(hidden_lys[hidden_lys.size()-1], parameter, hidden_lys.size()+1);
         }else{
-            output_ly->connect(input_ly);
+            output_ly->connect(input_ly, parameter, 1);
         }
     }
 
@@ -80,14 +83,14 @@ namespace mlp {
         output_ly->forward();
     }
 
-    void Network::backward(vector<double>& outputs){
+    void Network::backward(vector<double>& outputs, double lr){
         for(Layer* ly : hidden_lys){
             ly->updateGrad(outputs);
         }
         output_ly->updateGrad(outputs);
-        output_ly->backprop();
+        output_ly->backprop(lr);
         for(auto it = hidden_lys.rbegin(); it != hidden_lys.rend(); ++it){
-            (*it)->backprop();
+            (*it)->backprop(lr);
         }
     }
 
@@ -104,7 +107,7 @@ namespace mlp {
 
             this->forward(inputs);
             cout << output_ly->get_output()[0] << endl;
-            this->backward(outputs);
+            this->backward(outputs, lr);
         }
     }
 }

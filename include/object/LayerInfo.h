@@ -1,3 +1,6 @@
+#ifndef LAYERINFO_H
+#define LAYERINFO_H
+
 namespace mlp {
     enum ly_type {
         INPUT,
@@ -11,3 +14,5 @@ namespace mlp {
         int N_node;
     };
 }
+
+#endif

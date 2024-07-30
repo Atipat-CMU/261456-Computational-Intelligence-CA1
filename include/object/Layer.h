@@ -9,6 +9,7 @@ using namespace std;
 
 #include "Neural.h"
 #include "Edge.h"
+#include "Parameter.h"
 
 using namespace mlp;
 
@@ -39,12 +40,12 @@ namespace mlp {
             int size();
 
             vector<Neural*> get_neurals() const;
-            void connect(Layer* prev_ly);
+            void connect(Layer* prev_ly, Parameter param, int curr_ly);
             void set_out_edges(edge_set out_edges);
             void set_input(vector<double>& inputs);
             void forward();
             void updateGrad(vector<double>& outputs);
-            void backprop();
+            void backprop(double lr);
             vector<double> get_output();
     };
 
@@ -123,22 +124,27 @@ namespace mlp {
         return neurals;
     }
 
-    void Layer::connect(Layer* prev_ly){
-        int min = -1;
-        int max = 1;
-        float r = (float)rand() / (float)RAND_MAX;
+    void Layer::connect(Layer* prev_ly, Parameter param, int curr_ly){
+        int weight_count = 0;
+        int bias_count = 0;
         for (Neural* nl : neurals) {
             vector<Edge*> edges_in;
             edge_set edges_out;
+
             for(Neural* prev_nl : prev_ly->get_neurals()){
-                Edge* edge = new Edge(nl, prev_nl, min + r * (max - min));
+                double weight = param.get_weight_ly(curr_ly)[weight_count];
+                Edge* edge = new Edge(nl, prev_nl, weight);
                 edges_in.push_back(edge);
                 edges_out[prev_nl].push_back(edge);
+                weight_count++;
             }
+
             Neural* bias = new Neural(1);
             bias_ls.push_back(bias);
-            Edge* edge = new Edge(nl, bias, min + r * (max - min));
+            double weight = param.get_bias_ly(curr_ly)[bias_count];
+            Edge* edge = new Edge(nl, bias, weight);
             edges_in.push_back(edge);
+            bias_count++;
 
             in_edges[nl] = edges_in;
             prev_ly->set_out_edges(edges_out);
@@ -191,11 +197,10 @@ namespace mlp {
         }
     }
 
-    void Layer::backprop(){
+    void Layer::backprop(double lr){
         for(int i = 0; i < neurals.size(); i++){
             for(Edge* e : in_edges[neurals[i]]){
-                double deltaW = 0.5 * neurals[i]->getG() * e->getTail()->getY();
-                // cout << deltaW << endl;
+                double deltaW = lr * neurals[i]->getG() * e->getTail()->getY();
                 e->setW(deltaW);
             }
         }
