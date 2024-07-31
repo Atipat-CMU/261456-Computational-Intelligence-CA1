@@ -184,7 +184,7 @@ namespace mlp {
             bias_ls.push_back(weight_ls.back());
             weight_ls.pop_back();
         }
-        cout << bias_ls.size() << endl;
+        
         param.set_weight_ly(ly_id, weight_ls);
         param.set_bias_ly(ly_id, bias_ls);
     }

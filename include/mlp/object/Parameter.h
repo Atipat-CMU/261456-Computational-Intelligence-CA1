@@ -20,6 +20,7 @@ namespace mlp {
             Parameter();
             Parameter(vector<layer_info> layers);
             Parameter(vector<layer_info> layers, double min, double max);
+            Parameter(vector<vector<double>> weight_lys, vector<vector<double>> bias_lys);
             ~Parameter();
 
             vector<double> get_weight_ly(int ly);
@@ -80,6 +81,11 @@ namespace mlp {
             bias_lys.push_back(bias_ly);
         }
     }
+
+    Parameter::Parameter(vector<vector<double>> weight_lys, vector<vector<double>> bias_lys){
+        this->weight_lys = weight_lys;
+        this->bias_lys = bias_lys;
+    }
     
     Parameter::~Parameter()
     {
@@ -118,6 +124,7 @@ namespace mlp {
             }
             myfile << "\n";
         }
+        myfile << "#\n";
         for(vector<double> bias_ls : bias_lys){
             for(double bias : bias_ls){
                 myfile << bias << " ";
@@ -126,7 +133,39 @@ namespace mlp {
         }
         myfile.close();
     }
-    
+
+    Parameter param_read(string filename){
+        ifstream file(filename);
+        if (!file.is_open()) {
+            throw runtime_error("Could not open file");
+        }
+
+        string line;
+
+        vector<vector<double>> weight_lys;
+        vector<vector<double>> bias_lys;
+        bool isWeightReading = true;
+        
+        while (getline(file, line)) {
+            if(line == "#"){
+                isWeightReading = false;
+                continue;
+            }
+            stringstream ss(line);
+            string param;
+            vector<double> param_ly;
+            while (getline(ss, param, ' ')) {
+                param_ly.push_back(stod(param));
+            }
+            if(isWeightReading){
+                weight_lys.push_back(param_ly);
+            }else{
+                bias_lys.push_back(param_ly);
+            }
+        }
+
+        return Parameter(weight_lys, bias_lys);
+    }
 }
 
 #endif

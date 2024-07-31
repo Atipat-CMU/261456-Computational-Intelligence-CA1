@@ -34,6 +34,7 @@ namespace mlp {
             void info();
             History fit(Dataframe X, Dataframe y, int epoch, double lr);
             Parameter getParam();
+            void setParam(Parameter parameter);
     };
 
     Network::Network()
@@ -111,6 +112,10 @@ namespace mlp {
         return this->parameter;
     }
 
+    void Network::setParam(Parameter parameter){
+        this->parameter = parameter;
+    }
+
     History Network::fit(Dataframe X, Dataframe y, int epoch, double lr){
         if(X.get_width() != input_ly->size()){
             throw runtime_error("Input size not match");
@@ -132,9 +137,9 @@ namespace mlp {
             double error = 0;
             while(!index_ls.empty()){
                 int range = (index_ls.size() - 1) + 1;
-                int num = rand() % range;
+                int rnum = rand() % range;
 
-                int index = index_ls[num];
+                int index = index_ls[rnum];
                 vector<double> inputs = X.getRow(index);
                 vector<double> outputs = y.getRow(index);
 
@@ -149,7 +154,7 @@ namespace mlp {
                 error += sse/2.0;
 
                 this->backward(outputs, lr);
-                index_ls.erase(index_ls.begin() + index);
+                index_ls.erase(index_ls.begin() + rnum);
             }
 
             error_ls.push_back(error/X.get_depth());

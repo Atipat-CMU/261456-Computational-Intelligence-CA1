@@ -28,6 +28,8 @@ namespace dotlis {
 
             Dataframe get_column(const vector<int>& columns) const;
             Dataframe get_column_without(const vector<int>& columns) const;
+
+            void random();
     };
 
     Dataframe::Dataframe()
@@ -121,6 +123,19 @@ namespace dotlis {
             if(is_needed) selected.push_back(i);
         }
         return get_column(selected);
+    }
+
+    void Dataframe::random(){
+        srand(time(0));
+
+        vector<vector<double>> random_table;
+        while(!table.empty()){
+            int range = (table.size() - 1) + 1;
+            int num = rand() % range;
+
+            random_table.push_back(table[num]);
+            table.erase(table.begin() + num);
+        }
     }
 }
 
