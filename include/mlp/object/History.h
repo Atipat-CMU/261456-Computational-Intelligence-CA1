@@ -20,6 +20,7 @@ namespace mlp {
             History(vector<double> error_ls);
             ~History();
 
+            double get_latest_err();
             void exportError(string filename);
     };
 
@@ -33,6 +34,10 @@ namespace mlp {
 
     History::~History()
     {
+    }
+
+    double History::get_latest_err(){
+        return this->error_ls.back();
     }
 
     void History::exportError(string filename){

@@ -33,6 +33,8 @@ namespace mlp {
 
             void info();
             History fit(Dataframe X, Dataframe y, int epoch, double lr, double momentum);
+            vector<double> predict_one(vector<double> input);
+            Dataframe predict(Dataframe inputs);
             Parameter getParam();
             void setParam(Parameter parameter);
     };
@@ -162,6 +164,18 @@ namespace mlp {
 
         this->update_param();
         return History(error_ls);
+    }
+
+    vector<double> Network::predict_one(vector<double> inputs){
+        this->forward(inputs);
+        return output_ly->get_output();
+    }
+
+    Dataframe Network::predict(Dataframe df_test){
+        Dataframe df_predict;
+        for(int i = 0; i < df_test.get_depth(); i++){
+            df_predict.insert(predict_one(df_test.getRow(i)));
+        }
     }
 }
 

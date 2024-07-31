@@ -13,23 +13,26 @@ namespace dotlis {
     {
         private:
             vector<vector<double>> table;
-            int width;
+            int width = 0;
 
         public:
             Dataframe();
             Dataframe(const string& file_path, int start_line);
-            Dataframe(vector<vector<double>> &table);
+            Dataframe(vector<vector<double>> table);
             ~Dataframe();
 
             int get_width() const;
             int get_depth() const;
             double get(int r, int c) const;
             vector<double> getRow(int r) const;
+            void insert(vector<double> row);
 
             Dataframe get_column(const vector<int>& columns) const;
             Dataframe get_column_without(const vector<int>& columns) const;
+            vector<Dataframe> split_n(int n);
+            void extend(Dataframe other);
 
-            void random();
+            Dataframe random();
     };
 
     Dataframe::Dataframe()
@@ -66,7 +69,7 @@ namespace dotlis {
         this->table = table;
     }
 
-    Dataframe::Dataframe(vector<vector<double>> &table){
+    Dataframe::Dataframe(vector<vector<double>> table){
         this->table = table;
         if (!table.empty()) {
             width = table[0].size();
@@ -98,6 +101,17 @@ namespace dotlis {
         return table[r];
     }
 
+    void Dataframe::insert(vector<double> row){
+        if(this->width != 0){
+            if(this->width != row.size()){
+                runtime_error("Dataframe width not match");
+            }
+        }else{
+            this->table.push_back(row);
+            this->width = row.size();
+        }
+    }
+
     Dataframe Dataframe::get_column(const vector<int>& columns) const{
         vector<vector<double>> new_table;
         for(int r = 0; r < this->get_depth(); r++){
@@ -125,7 +139,7 @@ namespace dotlis {
         return get_column(selected);
     }
 
-    void Dataframe::random(){
+    Dataframe Dataframe::random(){
         srand(time(0));
 
         vector<vector<double>> random_table;
@@ -136,7 +150,41 @@ namespace dotlis {
             random_table.push_back(table[num]);
             table.erase(table.begin() + num);
         }
-        this->table = random_table;
+        return Dataframe(random_table);
+    }
+
+    vector<Dataframe> Dataframe::split_n(int n){
+        vector<vector<vector<double>>> table_ls(n);
+        for(int i = 0; i < this->get_depth(); i++){
+            table_ls[i%n].push_back(this->getRow(i));
+        }
+
+        vector<Dataframe> df_ls;
+        for(vector<vector<double>> table : table_ls){
+            df_ls.push_back(Dataframe(table));
+        }
+        return df_ls;
+    }
+
+    void Dataframe::extend(Dataframe other){
+        if(this->width != 0){
+            if(this->width != other.get_width()){
+                runtime_error("Dataframe width not match");
+            }
+        }else{
+            this->width = other.get_width();
+            for(int i = 0; i < other.get_depth(); i++){
+                this->table.push_back(other.getRow(i));
+            }
+        }
+    }
+
+    Dataframe merge(vector<Dataframe> df_ls){
+        Dataframe df_merged;
+        for(Dataframe df : df_ls){
+            df_merged.extend(df);
+        }
+        return df_merged;
     }
 }
 
