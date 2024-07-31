@@ -25,6 +25,7 @@ int main(){
     History history;
     history = network.fit(X_train, y_train, 1000, 1.0E-10);
     history.exportError("error_1000_mlp_8_8_4_2_lr1e-10.csv");
+    network.getParam().to_file("1000_mlp_8_8_4_2_lr1e-10.param");
 
     return 0;
 }

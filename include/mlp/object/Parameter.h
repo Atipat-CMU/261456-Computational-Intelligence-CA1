@@ -26,6 +26,7 @@ namespace mlp {
             vector<double> get_bias_ly(int ly);
             void set_weight_ly(int ly, vector<double> weight_ls);
             void set_bias_ly(int ly, vector<double> bias_ls);
+            void to_file(string filename);
     };
     
     Parameter::Parameter()
@@ -98,6 +99,32 @@ namespace mlp {
         }else{
             throw runtime_error("Weight size not match");
         }
+    }
+
+    void Parameter::set_bias_ly(int ly, vector<double> bias_ls){
+        if(bias_lys[ly].size() == bias_ls.size()){
+            bias_lys[ly] = bias_ls;
+        }else{
+            throw runtime_error("Bias size not match");
+        }
+    }
+
+    void Parameter::to_file(string filename){
+        ofstream myfile;
+        myfile.open (filename);
+        for(vector<double> weight_ls : weight_lys){
+            for(double weight : weight_ls){
+                myfile << weight << " ";
+            }
+            myfile << "\n";
+        }
+        for(vector<double> bias_ls : bias_lys){
+            for(double bias : bias_ls){
+                myfile << bias << " ";
+            }
+            myfile << "\n";
+        }
+        myfile.close();
     }
     
 }

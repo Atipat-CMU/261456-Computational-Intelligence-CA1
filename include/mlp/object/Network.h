@@ -24,7 +24,7 @@ namespace mlp {
             Parameter parameter;
             void forward(vector<double>& inputs);
             void backward(vector<double>& outputs, double lr);
-            void updateParam();
+            void update_param();
 
         public:
             Network();
@@ -33,6 +33,7 @@ namespace mlp {
 
             void info();
             History fit(Dataframe X, Dataframe y, int epoch, double lr);
+            Parameter getParam();
     };
 
     Network::Network()
@@ -99,17 +100,16 @@ namespace mlp {
         }
     }
 
-    // void Network::updateParam(){
-    //     if(!hidden_lys.empty()){
-    //         hidden_lys[0]->connect(input_ly, parameter);
-    //         for(int i = 1; i < hidden_lys.size(); i++){
-    //             hidden_lys[i]->connect(hidden_lys[i-1], parameter);
-    //         }
-    //         output_ly->connect(hidden_lys[hidden_lys.size()-1], parameter);
-    //     }else{
-    //         output_ly->connect(input_ly, parameter);
-    //     }
-    // }
+    void Network::update_param(){
+        for(int i = 0; i < hidden_lys.size(); i++){
+            hidden_lys[i]->pull_param(parameter);
+        }
+        output_ly->pull_param(parameter);
+    }
+
+    Parameter Network::getParam(){
+        return this->parameter;
+    }
 
     History Network::fit(Dataframe X, Dataframe y, int epoch, double lr){
         if(X.get_width() != input_ly->size()){
@@ -155,6 +155,7 @@ namespace mlp {
             error_ls.push_back(error/X.get_depth());
         }
 
+        this->update_param();
         return History(error_ls);
     }
 }

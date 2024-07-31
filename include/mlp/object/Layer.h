@@ -48,7 +48,7 @@ namespace mlp {
             void updateGrad(vector<double>& outputs);
             void backprop(double lr);
             vector<double> get_output();
-            vector<double> get_weight();
+            void pull_param(Parameter &param);
     };
 
     Layer::Layer()
@@ -173,8 +173,20 @@ namespace mlp {
         return outputs;
     }
 
-    vector<double> Layer::get_weight(){
-
+    void Layer::pull_param(Parameter &param){
+        vector<double> weight_ls;
+        vector<double> bias_ls;
+        for(Neural *n : neurals){
+            vector<Edge*> edges = in_edges[n];
+            for(Edge *e : edges){
+                weight_ls.push_back(e->getW());
+            }
+            bias_ls.push_back(weight_ls.back());
+            weight_ls.pop_back();
+        }
+        cout << bias_ls.size() << endl;
+        param.set_weight_ly(ly_id, weight_ls);
+        param.set_bias_ly(ly_id, bias_ls);
     }
 
     void Layer::forward(){
