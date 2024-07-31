@@ -136,6 +136,7 @@ namespace dotlis {
             random_table.push_back(table[num]);
             table.erase(table.begin() + num);
         }
+        this->table = random_table;
     }
 }
 

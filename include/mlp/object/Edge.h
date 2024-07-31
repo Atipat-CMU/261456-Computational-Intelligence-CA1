@@ -9,6 +9,7 @@ namespace mlp {
         private:
             Neural *head, *tail;
             double weight;
+            double prev_deltaW = 0;
 
         public:
             Edge();
@@ -18,7 +19,7 @@ namespace mlp {
             Neural* getHead();
             Neural* getTail();
             double getW();
-            void setW(double deltaW);
+            void setW(double deltaW, double momentum);
     };
 
     Edge::Edge()
@@ -47,8 +48,9 @@ namespace mlp {
         return weight;
     }
 
-    void Edge::setW(double deltaW){
-        this->weight += deltaW;
+    void Edge::setW(double deltaW, double momentum){
+        this->weight += deltaW + (momentum*prev_deltaW);
+        this->prev_deltaW = deltaW;
     }
 }
 

@@ -46,7 +46,7 @@ namespace mlp {
             void set_input(vector<double>& inputs);
             void forward();
             void updateGrad(vector<double>& outputs);
-            void backprop(double lr);
+            void backprop(double lr, double momentum);
             vector<double> get_output();
             void pull_param(Parameter &param);
     };
@@ -216,11 +216,11 @@ namespace mlp {
         }
     }
 
-    void Layer::backprop(double lr){
+    void Layer::backprop(double lr, double momentum){
         for(int i = 0; i < neurals.size(); i++){
             for(Edge* e : in_edges[neurals[i]]){
                 double deltaW = lr * neurals[i]->getG() * e->getTail()->getY();
-                e->setW(deltaW);
+                e->setW(deltaW, momentum);
             }
         }
     }

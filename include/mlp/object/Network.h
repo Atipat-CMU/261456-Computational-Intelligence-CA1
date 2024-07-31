@@ -23,7 +23,7 @@ namespace mlp {
             vector<Layer*> hidden_lys;
             Parameter parameter;
             void forward(vector<double>& inputs);
-            void backward(vector<double>& outputs, double lr);
+            void backward(vector<double>& outputs, double lr, double momentum);
             void update_param();
 
         public:
@@ -32,7 +32,7 @@ namespace mlp {
             ~Network();
 
             void info();
-            History fit(Dataframe X, Dataframe y, int epoch, double lr);
+            History fit(Dataframe X, Dataframe y, int epoch, double lr, double momentum);
             Parameter getParam();
             void setParam(Parameter parameter);
     };
@@ -90,14 +90,14 @@ namespace mlp {
         output_ly->forward();
     }
 
-    void Network::backward(vector<double>& outputs, double lr){
+    void Network::backward(vector<double>& outputs, double lr, double momentum){
         for(Layer* ly : hidden_lys){
             ly->updateGrad(outputs);
         }
         output_ly->updateGrad(outputs);
-        output_ly->backprop(lr);
+        output_ly->backprop(lr, momentum);
         for(auto it = hidden_lys.rbegin(); it != hidden_lys.rend(); ++it){
-            (*it)->backprop(lr);
+            (*it)->backprop(lr, momentum);
         }
     }
 
@@ -116,7 +116,7 @@ namespace mlp {
         this->parameter = parameter;
     }
 
-    History Network::fit(Dataframe X, Dataframe y, int epoch, double lr){
+    History Network::fit(Dataframe X, Dataframe y, int epoch, double lr, double momentum){
         if(X.get_width() != input_ly->size()){
             throw runtime_error("Input size not match");
         }
@@ -153,7 +153,7 @@ namespace mlp {
 
                 error += sse/2.0;
 
-                this->backward(outputs, lr);
+                this->backward(outputs, lr, momentum);
                 index_ls.erase(index_ls.begin() + rnum);
             }
 
