@@ -21,9 +21,10 @@ namespace mlp {
         private:
             Layer *input_ly, *output_ly;
             vector<Layer*> hidden_lys;
+            Parameter parameter;
             void forward(vector<double>& inputs);
             void backward(vector<double>& outputs, double lr);
-            Parameter parameter;
+            void updateParam();
 
         public:
             Network();
@@ -40,8 +41,9 @@ namespace mlp {
 
     Network::Network(vector<layer_info> layers){
         this->parameter = Parameter(layers);
+        int ly_count = 0;
         for(layer_info l_info : layers){
-            Layer* layer = new Layer(l_info.type == HIDDEN, l_info.N_node, l_info.activation);
+            Layer* layer = new Layer(ly_count, l_info.type == HIDDEN, l_info.N_node, l_info.activation);
             if(l_info.type == INPUT){
                 input_ly = layer;
             }else if(l_info.type == OUTPUT){
@@ -49,16 +51,17 @@ namespace mlp {
             }else{
                 hidden_lys.push_back(layer);
             }
+            ly_count++;
         }
 
         if(!hidden_lys.empty()){
-            hidden_lys[0]->connect(input_ly, parameter, 1);
+            hidden_lys[0]->connect(input_ly, parameter);
             for(int i = 1; i < hidden_lys.size(); i++){
-                hidden_lys[i]->connect(hidden_lys[i-1], parameter, i+1);
+                hidden_lys[i]->connect(hidden_lys[i-1], parameter);
             }
-            output_ly->connect(hidden_lys[hidden_lys.size()-1], parameter, hidden_lys.size()+1);
+            output_ly->connect(hidden_lys[hidden_lys.size()-1], parameter);
         }else{
-            output_ly->connect(input_ly, parameter, 1);
+            output_ly->connect(input_ly, parameter);
         }
     }
 
@@ -95,6 +98,18 @@ namespace mlp {
             (*it)->backprop(lr);
         }
     }
+
+    // void Network::updateParam(){
+    //     if(!hidden_lys.empty()){
+    //         hidden_lys[0]->connect(input_ly, parameter);
+    //         for(int i = 1; i < hidden_lys.size(); i++){
+    //             hidden_lys[i]->connect(hidden_lys[i-1], parameter);
+    //         }
+    //         output_ly->connect(hidden_lys[hidden_lys.size()-1], parameter);
+    //     }else{
+    //         output_ly->connect(input_ly, parameter);
+    //     }
+    // }
 
     History Network::fit(Dataframe X, Dataframe y, int epoch, double lr){
         if(X.get_width() != input_ly->size()){

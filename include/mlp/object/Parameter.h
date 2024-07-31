@@ -24,6 +24,8 @@ namespace mlp {
 
             vector<double> get_weight_ly(int ly);
             vector<double> get_bias_ly(int ly);
+            void set_weight_ly(int ly, vector<double> weight_ls);
+            void set_bias_ly(int ly, vector<double> bias_ls);
     };
     
     Parameter::Parameter()
@@ -88,6 +90,14 @@ namespace mlp {
 
     vector<double> Parameter::get_bias_ly(int ly){
         return bias_lys[ly];
+    }
+
+    void Parameter::set_weight_ly(int ly, vector<double> weight_ls){
+        if(weight_lys[ly].size() == weight_ls.size()){
+            weight_lys[ly] = weight_ls;
+        }else{
+            throw runtime_error("Weight size not match");
+        }
     }
     
 }

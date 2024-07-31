@@ -25,13 +25,14 @@ namespace mlp {
             edge_set in_edges;
             edge_set out_edges;
             bool is_hidden;
+            int ly_id;
             
             void clear();
             void copyFrom(const Layer& other);
 
         public:
             Layer();
-            Layer(bool is_hidden, int N_node, double (*activation)(double, bool));
+            Layer(int ly_id,bool is_hidden, int N_node, double (*activation)(double, bool));
             ~Layer();
 
             Layer(const Layer& other);
@@ -40,20 +41,22 @@ namespace mlp {
             int size();
 
             vector<Neural*> get_neurals() const;
-            void connect(Layer* prev_ly, Parameter param, int curr_ly);
+            void connect(Layer* prev_ly, Parameter param);
             void set_out_edges(edge_set out_edges);
             void set_input(vector<double>& inputs);
             void forward();
             void updateGrad(vector<double>& outputs);
             void backprop(double lr);
             vector<double> get_output();
+            vector<double> get_weight();
     };
 
     Layer::Layer()
     {
     }
 
-    Layer::Layer(bool is_hidden, int N_node, double (*activation)(double, bool)){
+    Layer::Layer(int ly_id, bool is_hidden, int N_node, double (*activation)(double, bool)){
+        this->ly_id = ly_id;
         this->is_hidden = is_hidden;
         for(int i = 0; i < N_node; i++){
             Neural* neural = new Neural(is_hidden, activation);
@@ -124,7 +127,7 @@ namespace mlp {
         return neurals;
     }
 
-    void Layer::connect(Layer* prev_ly, Parameter param, int curr_ly){
+    void Layer::connect(Layer* prev_ly, Parameter param){
         int weight_count = 0;
         int bias_count = 0;
         for (Neural* nl : neurals) {
@@ -132,7 +135,7 @@ namespace mlp {
             edge_set edges_out;
 
             for(Neural* prev_nl : prev_ly->get_neurals()){
-                double weight = param.get_weight_ly(curr_ly)[weight_count];
+                double weight = param.get_weight_ly(this->ly_id)[weight_count];
                 Edge* edge = new Edge(nl, prev_nl, weight);
                 edges_in.push_back(edge);
                 edges_out[prev_nl].push_back(edge);
@@ -141,7 +144,7 @@ namespace mlp {
 
             Neural* bias = new Neural(1);
             bias_ls.push_back(bias);
-            double weight = param.get_bias_ly(curr_ly)[bias_count];
+            double weight = param.get_bias_ly(this->ly_id)[bias_count];
             Edge* edge = new Edge(nl, bias, weight);
             edges_in.push_back(edge);
             bias_count++;
@@ -168,6 +171,10 @@ namespace mlp {
             outputs.push_back(neurals[i]->getY());
         }
         return outputs;
+    }
+
+    vector<double> Layer::get_weight(){
+
     }
 
     void Layer::forward(){
