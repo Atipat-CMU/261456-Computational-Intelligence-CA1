@@ -3,13 +3,15 @@
 
 #include <vector>
 #include <iostream>
+#include <ctime>
 
 using namespace std;
 
 #include "Layer.h"
-#include "Dataframe.h"
+#include "../../dotlis/object/Dataframe.h"
 #include "LayerInfo.h"
 #include "Parameter.h"
+#include "History.h"
 
 using namespace dotlis;
 
@@ -29,7 +31,7 @@ namespace mlp {
             ~Network();
 
             void info();
-            void fit(Dataframe X, Dataframe y, int epoch, double lr);
+            History fit(Dataframe X, Dataframe y, int epoch, double lr);
     };
 
     Network::Network()
@@ -94,21 +96,51 @@ namespace mlp {
         }
     }
 
-    void Network::fit(Dataframe X, Dataframe y, int epoch, double lr){
+    History Network::fit(Dataframe X, Dataframe y, int epoch, double lr){
         if(X.get_width() != input_ly->size()){
             throw runtime_error("Input size not match");
         }
         if(y.get_width() != output_ly->size()){
             throw runtime_error("Output size not match");
         }
-        while(epoch--){
-            vector<double> inputs = X.getRow(0);
-            vector<double> outputs = y.getRow(0);
 
-            this->forward(inputs);
-            cout << output_ly->get_output()[0] << endl;
-            this->backward(outputs, lr);
+        vector<double> error_ls;
+
+        while(epoch--){
+            srand(time(0));
+
+            vector<int> index_ls;
+            for(int i = 0; i < X.get_depth(); i++){
+                index_ls.push_back(i);
+            }
+
+            double error = 0;
+            while(!index_ls.empty()){
+                int range = (index_ls.size() - 1) + 1;
+                int num = rand() % range;
+
+                int index = index_ls[num];
+                vector<double> inputs = X.getRow(index);
+                vector<double> outputs = y.getRow(index);
+
+                this->forward(inputs);
+
+                vector<double> y_ls = output_ly->get_output();
+                double sse = 0;
+                for(int i = 0; i < y_ls.size(); i++){
+                    sse += pow(outputs[i] - y_ls[i], 2);
+                }
+
+                error += sse/2.0;
+
+                this->backward(outputs, lr);
+                index_ls.erase(index_ls.begin() + index);
+            }
+
+            error_ls.push_back(error/X.get_depth());
         }
+
+        return History(error_ls);
     }
 }
 

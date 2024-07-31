@@ -14,13 +14,17 @@ int main(){
 
     vector<layer_info> layers = {
         {INPUT, nullptr, 8},
-        {HIDDEN, linear, 10},
-        {HIDDEN, linear, 10},
+        {HIDDEN, linear, 8},
+        {HIDDEN, linear, 8},
+        {HIDDEN, linear, 4},
+        {HIDDEN, linear, 2},
         {OUTPUT, linear, 1},
     };
 
     Network network(layers);
-    network.fit(X_train, y_train, 20, 1.0E-5);
+    History history;
+    history = network.fit(X_train, y_train, 2000, 1.0E-10);
+    history.exportError("error_2000_mlp_8_8_4_2_lr1e-10.csv");
 
     return 0;
 }

@@ -204,7 +204,6 @@ namespace mlp {
                 e->setW(deltaW);
             }
         }
-        
     }
 }
 
