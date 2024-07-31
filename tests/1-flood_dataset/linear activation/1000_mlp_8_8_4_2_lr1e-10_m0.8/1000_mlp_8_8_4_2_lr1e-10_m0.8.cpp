@@ -1,13 +1,13 @@
 #include <iostream>
-#include "../../../include/dotlis.h"
-#include "../../../include/mlp.h"
+#include "../../../../include/dotlis.h"
+#include "../../../../include/mlp.h"
 
 using namespace dotlis;
 
 using namespace std;
 
 int main(){
-    Dataframe df("../Flood_dataset.txt", 3);
+    Dataframe df("../../Flood_dataset.txt", 3);
     Dataframe df_random = df.random();
 
     int k = 10;
@@ -24,6 +24,9 @@ int main(){
 
     vector<History> history_ls;
     Parameter init_parameter(layers);
+
+    double sum_rmse_t = 0, sum_rmse_v = 0;
+    int N_t = 0, N_v = 0;
 
     for(int i = 0; i < k; i++){
         Dataframe df_train;
@@ -45,14 +48,30 @@ int main(){
 
         Network network(layers);
         network.setParam(init_parameter);
+
         History history = network.fit(X_train, y_train, 1000, 1.0E-10, 0.8);
         history_ls.push_back(history);
 
-        cout << history.get_latest_err() << endl;
+        Dataframe y_pred_train = network.predict(X_train);
+        Dataframe y_pred_val = network.predict(X_val);
 
-        // history.exportError("error/error_500_mlp_8_8_4_2_lr1e-10.csv");
-        // network.getParam().to_file("parameter/500_mlp_8_8_4_2_lr1e-10.param");
+        cout << "fold-" << i+1 << ":  ";
+        double rmse_t = calRMSE(y_train, y_pred_train);
+        double rmse_v = calRMSE(y_val, y_pred_val);
+        cout << "RMSE(train): " << rmse_t << "\t";
+        cout << "RMSE(validate): " << rmse_v << "\t";
+        cout << "(" << rmse_v - rmse_t << ")\n";
+        sum_rmse_t += rmse_t; N_t++;
+        sum_rmse_v += rmse_v; N_v++;
+
+        string exp_name = "1000_mlp_8_8_4_2_lr1e-10_m0.8";
+
+        history.exportError("error/error" + exp_name + "_f" + to_string(i+1) + ".csv");
+        network.getParam().to_file("parameter/" + exp_name + "_f" + to_string(i+1) + ".param");
     }
+    cout << "---------------------------------------------------------" << endl;
+    cout << "Average RMSE(train): " << sum_rmse_t/N_t << endl;
+    cout << "Average RMSE(validate): " << sum_rmse_v/N_v << endl;
 
     return 0;
 }

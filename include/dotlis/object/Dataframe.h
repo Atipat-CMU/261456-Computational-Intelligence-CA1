@@ -107,9 +107,9 @@ namespace dotlis {
                 runtime_error("Dataframe width not match");
             }
         }else{
-            this->table.push_back(row);
             this->width = row.size();
         }
+        this->table.push_back(row);
     }
 
     Dataframe Dataframe::get_column(const vector<int>& columns) const{
@@ -173,9 +173,9 @@ namespace dotlis {
             }
         }else{
             this->width = other.get_width();
-            for(int i = 0; i < other.get_depth(); i++){
-                this->table.push_back(other.getRow(i));
-            }
+        }
+        for(int i = 0; i < other.get_depth(); i++){
+            this->table.push_back(other.getRow(i));
         }
     }
 

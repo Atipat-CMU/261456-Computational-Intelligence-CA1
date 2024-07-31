@@ -176,6 +176,7 @@ namespace mlp {
         for(int i = 0; i < df_test.get_depth(); i++){
             df_predict.insert(predict_one(df_test.getRow(i)));
         }
+        return df_predict;
     }
 }
 
