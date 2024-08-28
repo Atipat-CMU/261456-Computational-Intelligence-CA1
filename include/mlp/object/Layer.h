@@ -75,6 +75,7 @@ namespace mlp {
     }
 
     Layer::Layer(const Layer& other) {
+        clear();
         copyFrom(other);
     }
 
@@ -101,6 +102,12 @@ namespace mlp {
             }
         }
         in_edges.clear();
+        for (auto& entry : out_edges) {
+            for (Edge* edge : entry.second) {
+                delete edge;
+            }
+        }
+        out_edges.clear();
     }
 
     void Layer::copyFrom(const Layer& other) {

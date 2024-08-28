@@ -10,6 +10,15 @@ namespace mlp {
         }
     }
 
+    double tanh(double x, bool isForward) {
+        if (isForward) {
+            return (2/(1+exp(-2*x))) - 1;
+        } else {
+            double f = tanh(x, true);
+            return 1 - (f * f);
+        }
+    }
+
     double linear(double x, bool isForward){
         if(isForward){
             return x;

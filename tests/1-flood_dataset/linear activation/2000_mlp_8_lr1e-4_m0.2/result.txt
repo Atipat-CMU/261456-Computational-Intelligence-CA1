@@ -1,0 +1,4 @@
+fold-1:  RMSE(train): nan       RMSE(validate): nan     (nan)
+fold-2:  RMSE(train): nan       RMSE(validate): nan     (nan)                                                    telligence-CA1>
+fold-3:  RMSE(train): nan       RMSE(validate): nan     (nan)
+fold-4:  RMSE(train): nan       RMSE(validate): nan     (nan)

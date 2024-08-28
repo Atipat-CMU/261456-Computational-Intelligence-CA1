@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
 using namespace std;
 
@@ -20,6 +21,8 @@ namespace dotlis {
             Dataframe(const string& file_path, int start_line);
             Dataframe(vector<vector<double>> table);
             ~Dataframe();
+
+            void to_csv(string filename);
 
             int get_width() const;
             int get_depth() const;
@@ -37,6 +40,40 @@ namespace dotlis {
 
     Dataframe::Dataframe()
     {
+    }
+
+    Dataframe read_pat(const string& filename){
+        ifstream file(filename);
+        if (!file.is_open()) {
+            throw runtime_error("Could not open file");
+        }
+
+        string line;
+
+        vector<vector<double>> table;
+        vector<double> row;
+
+        bool isFirst = true;
+        while (getline(file, line)) {
+            if(line[0] == 'p'){
+                if(isFirst){
+                    isFirst = false;
+                    continue;
+                }
+                table.push_back(row);
+                row.clear();
+            }else{
+                regex re("\\s+");
+                line = regex_replace(line, re, " ");
+                stringstream ss(line);
+                string value;
+                while (getline(ss, value, ' ')) {
+                    row.push_back(stod(value));
+                }
+            }
+        }
+
+        return Dataframe(table);
     }
 
     Dataframe::Dataframe(const string& file_path, int start_line){
@@ -80,6 +117,19 @@ namespace dotlis {
 
     Dataframe::~Dataframe()
     {
+    }
+
+    void Dataframe::to_csv(string filename){
+        ofstream myfile;
+        myfile.open (filename);
+        for(int r = 0; r < this->get_depth(); r++){
+            for(int c = 0; c < this->get_width(); c++){
+                if(c == 0) myfile << this->get(r, c);
+                else myfile << "," << this->get(r, c);
+            }
+            myfile << "\n";
+        }
+        myfile.close();
     }
 
     int Dataframe::get_width() const{

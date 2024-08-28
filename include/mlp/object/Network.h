@@ -93,10 +93,11 @@ namespace mlp {
     }
 
     void Network::backward(vector<double>& outputs, double lr, double momentum){
-        for(Layer* ly : hidden_lys){
-            ly->updateGrad(outputs);
-        }
         output_ly->updateGrad(outputs);
+        for(auto it = hidden_lys.rbegin(); it != hidden_lys.rend(); ++it){
+            (*it)->updateGrad(outputs);
+        }
+    
         output_ly->backprop(lr, momentum);
         for(auto it = hidden_lys.rbegin(); it != hidden_lys.rend(); ++it){
             (*it)->backprop(lr, momentum);
@@ -150,6 +151,7 @@ namespace mlp {
                 vector<double> y_ls = output_ly->get_output();
                 double sse = 0;
                 for(int i = 0; i < y_ls.size(); i++){
+                    // if(!isnan(y_ls[i])) cout << y_ls[i] << "\n";
                     sse += pow(outputs[i] - y_ls[i], 2);
                 }
 

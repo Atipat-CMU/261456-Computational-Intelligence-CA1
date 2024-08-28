@@ -1,0 +1,13 @@
+fold-1:  RMSE(train): 12.7897   RMSE(validate): 13.6076 (0.817843)
+fold-2:  RMSE(train): 13.8986   RMSE(validate): 13.6439 (-0.254617)
+fold-3:  RMSE(train): 12.5693   RMSE(validate): 13.5868 (1.01743)
+fold-4:  RMSE(train): 12.9554   RMSE(validate): 9.96822 (-2.98714)
+fold-5:  RMSE(train): 12.6344   RMSE(validate): 13.0668 (0.432403)
+fold-6:  RMSE(train): 12.7865   RMSE(validate): 10.5175 (-2.26896)
+fold-7:  RMSE(train): 12.8143   RMSE(validate): 11.0429 (-1.77139)
+fold-8:  RMSE(train): 16.0057   RMSE(validate): 18.0964 (2.09068)
+fold-9:  RMSE(train): 12.0389   RMSE(validate): 16.91   (4.8711)
+fold-10:  RMSE(train): 12.945   RMSE(validate): 11.1681 (-1.77692)
+---------------------------------------------------------
+Average RMSE(train): 13.1438
+Average RMSE(validate): 13.1608

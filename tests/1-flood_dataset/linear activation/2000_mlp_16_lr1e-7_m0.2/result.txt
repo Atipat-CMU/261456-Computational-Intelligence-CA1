@@ -1,0 +1,12 @@
+fold-1:  RMSE(train): 13.5486   RMSE(validate): 12.5711 (-0.97754)vmwjb.13n' '--dbgExe=C:\x5cmsys64\x5cucrt64fold-2:  RMSE(train): 12.8153   RMSE(validate): 12.8513 (0.0360817)a2188d50f
+fold-3:  RMSE(train): 12.6797   RMSE(validate): 12.4207 (-0.259022)
+fold-4:  RMSE(train): 12.4442   RMSE(validate): 12.9754 (0.531138)
+fold-5:  RMSE(train): 12.7491   RMSE(validate): 10.6026 (-2.14655)
+fold-6:  RMSE(train): 12.5079   RMSE(validate): 15.0073 (2.49942)
+fold-7:  RMSE(train): 12.3152   RMSE(validate): 13.7933 (1.47816)
+fold-8:  RMSE(train): 12.6961   RMSE(validate): 10.896  (-1.80014)
+fold-9:  RMSE(train): 13.9366   RMSE(validate): 17.9238 (3.98727)
+fold-10:  RMSE(train): 13.0342  RMSE(validate): 9.57928 (-3.45494)
+---------------------------------------------------------
+Average RMSE(train): 12.8727
+Average RMSE(validate): 12.8621
