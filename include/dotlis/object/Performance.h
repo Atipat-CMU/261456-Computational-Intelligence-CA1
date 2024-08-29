@@ -35,7 +35,7 @@ namespace dotlis{
         return Dataframe(table);
     }
 
-    void calConfusionM(Dataframe y, Dataframe _y){
+    double calConfusionM(Dataframe y, Dataframe _y){
         vector<vector<int>> table(2, vector<int>(2,0));
         if(y.get_depth() != _y.get_depth() 
             || y.get_width() != 1 || y.get_width() != 1){
@@ -55,6 +55,8 @@ namespace dotlis{
 
         cout << "Accuracy: " << (a+d)/(N*1.0) << "\t";
         cout << "Miss: " << (b+c)/(N*1.0) << endl;
+
+        return (a+d)/(N*1.0);
     }
 }
 
